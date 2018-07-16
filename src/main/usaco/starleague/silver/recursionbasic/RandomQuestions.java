@@ -1,35 +1,31 @@
-package usaco.starleague.silver.recursionbasic;
-
 import java.util.Scanner;
 
-public class RandomQuestions {
+public class Main {
 
 	public static void main(String[] args) {
 		Scanner consoleIn = new Scanner(System.in);
 		
 		int in = consoleIn.nextInt();
-        primidRec(in);
+		triangleBottom(in);
 		
-		consoleIn.close();
+        consoleIn.close();
 	}
-
-    private static void primidRec(int n) {
-        primidRec(2, true, n);
-    }
-    private static void primidRec(int n, boolean isIncrease, int originalN) {
-        System.out.print(n + " ");
-        // last one, 2
-        if(!isIncrease && n == 2) {
-            return;
-        }
-        if(n == originalN) {
-            isIncrease = false;
-        }
-        if(isIncrease) {
-            primidRec(n + 1, isIncrease, originalN);
-        } else {
-            primidRec(n - 1, isIncrease, originalN);
-        }
-    }
-
+	
+	private static void primidRec(int n) {
+		if(n == 1) return;
+		
+		primidRec(n - 1);
+		System.out.print(n + " ");
+		primidRec(n - 1);
+	}
+	
+	private static void triangleBottom(int n) {
+		if(n == 0) return;
+		
+		for(int i = 1; i <= n; i++) {
+			System.out.print(i + " ");
+		}
+		System.out.println("");
+		triangleBottom(n - 1);
+	}
 }
