@@ -1,0 +1,291 @@
+/*
+import java.utils.*;
+*/
+
+
+
+
+class Utils {
+
+    private Utils() {
+    }
+
+
+
+    public static void loop(int stop, IIntConsumer func, int start, int step) {
+        for(int i = start; i <= stop; i += step) {
+            func.run(i);
+        }
+    }
+
+    private static Logger changableLogger;
+
+    public static void resetLogger(String name, String group, boolean logs) {
+        if(logs) {
+            changableLogger = new ConsoleLogger(name, group);
+        } else {
+            changableLogger = new FakeLogger();  // a fake logger
+        }
+    }
+    public static Logger getLogger() {
+        return changableLogger;
+    }
+
+
+    public static void println(Object t) {
+        System.out.println(t);
+    }
+    public static void println(int t) {
+        System.out.println(t);
+    }
+    public static void println(long t) {
+        System.out.println(t);
+    }
+    public static void println(boolean t) {
+        System.out.println(t);
+    }
+
+}
+
+class MathUtils {
+
+    private MathUtils() {
+    }
+
+
+
+    public static int max(int a, int b) {
+        return a > b ? a : b;
+    }
+    public static int max(int... a) {
+        int maximum = 0;
+        for(int i = 0; i < a.length; i++) {
+            if(a[i] > maximum) {
+                maximum = a[i];
+            }
+        }
+
+        return maximum;
+    }
+
+    public static int min(int a, int b) {
+        return a < b ? a : b;
+    }
+    public static int min(int... a) {
+        int minimum = a[0];
+        for(int i = 0; i < a.length; i++) {
+            if(a[i] < minimum) {
+                minimum = a[i];
+            }
+        }
+
+        return minimum;
+    }
+
+    public static int pow(int base, int exponent) {
+        return (int) Math.pow(base, exponent);
+    }
+    public static int pow(int base) {
+        return base * base;
+    }
+
+
+    /**
+     * Checks for how many combinations of two squares
+     * that can make x.
+     */
+    public static int combsSquareAB(int x) {
+        int sqrtX = (int) Math.sqrt(x);
+        int count = 0;
+
+        for(int a = 0; a <= sqrtX; a++) {
+            for(int b = 0; b <= sqrtX; b++) {
+                if(a*a + b*b == x) {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
+}
+
+class MapUtils {
+
+    private MapUtils() {
+    }
+
+
+
+    /**
+     * Seaerch for the index that of the input in an array. 
+     */
+    public static int searchFor(Object target, Object[] from) {
+        for(int i = 0; i < from.length; i++) {
+            if(from[i].equals(target)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+    /**
+     * Similar to searchFor(...), but gives you the coorsponding
+     * value inside another array instead of the index.
+     */
+    public static Object getByKey(Object key, Object[] keys, Object[] values) {
+        return values[searchFor(key, keys)];
+    }
+
+}
+
+class ListUtils {
+
+    private ListUtils() {
+    }
+
+
+
+    /**
+     * Regular bubble sort.
+     * <b>WARNING: this method changes the array</b>
+     *
+     * @param a The array gets sorted, result is the parameter.
+     */
+    public static void bubbleSort(int[] a) {
+        int swaps;
+        do {
+            swaps = 0;
+
+            for(int i = 0; i < a.length-1; i++) {
+                if(a[i+1] < a[i]) {
+                    int tmp = a[i];
+                    a[i] = a[i+1];
+                    a[i+1] = tmp;
+
+                    swaps++;
+                }
+            }
+        } while(swaps > 0);
+    }
+
+
+
+
+
+    /**
+     * For primitive type arrays, use 
+     * Arrays.toString(...);
+     */
+    public static void printArray(Object[] array) {
+        StringBuilder out = new StringBuilder();
+        out.append("[");
+
+        for(int i = 0; i < array.length; i++) {
+            out.append(array[i]);
+            out.append(", ");
+        }
+        out.append("]");
+
+        System.out.println(out.toString());
+    }
+
+}
+
+class TimeUtils {
+
+    private TimeUtils() {
+    }
+
+
+
+        public static int get6dTime(int hours, int minutes, int seconds) {
+        /*
+        13:30:06
+        ^^ -- --  * 10000  //four 0s
+
+        13:30:06
+           ^^ --  * 100    //two 0s
+
+        13:30:06
+              ^^  *1       //regular seconds
+        */
+        return hours * 10000 + minutes * 100 + seconds;
+    }
+
+    public static String formatTime(int time6d) {
+        return formatTime(time6d / 10000, (time6d / 100) % 100, time6d % 100, " ");
+    }
+
+    public static String formatTime(int hours, int minutes, int seconds, String separator) {
+        return hours + separator + minutes + separator + seconds;
+    }
+
+
+
+    /** Only [hours, minutes] */
+    public static int[] addHourMinute(int[] timeA, int[] timeB) {
+        int[] result = new int[2];
+        result[0] = timeA[0] + timeB[0];
+        result[1] = timeA[1] + timeB[1];
+
+        while(result[1] >= 60) {
+            result[1] -= 60;
+            result[0]++;
+        }
+
+        return result;
+    }
+    /** Only [hours, minutes] */
+    public static int[] subtractHourMinute(int[] timeA, int[] timeB) {
+        int[] result = new int[2];
+
+        result[0] = timeA[0] - timeB[0];
+        result[1] = timeA[1] - timeB[1];
+
+        if(result[1] < 0) {
+            result[0]--;
+            result[1] += 60;
+        }
+
+        return result;
+    }
+
+    /**
+     * Convert a time int[] to a single integer represents seconds
+     * that is sum of all values
+     * 
+     * @param time A time that is [hours, minutes, seconds].
+     * 
+     * @return A single integer represents seconds.
+     */
+    public static int convertToSeconds(int[] time) {
+        int totalSecs = 0;
+
+        totalSecs += time[0] * 3600;
+        totalSecs += time[1] * 60;
+        totalSecs += time[2];
+
+        return totalSecs;
+    }
+
+    public static int[] convertToTime(int seconds) {
+        int[] time = new int[3];
+
+        //take out hours
+        while(seconds > 3600) {
+            time[0]++;
+            seconds -= 3600;
+        }
+        //take out minutes
+        while(seconds > 60) {
+            time[1]++;
+            seconds -= 60;
+        }
+        time[2] = seconds;
+
+        return time;
+    }
+    
+}

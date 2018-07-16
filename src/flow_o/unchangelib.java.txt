@@ -1,0 +1,381 @@
+/*
+import java.util.*;
+*/
+
+
+
+class ArrayListPP<E extends Comparable<E>> extends ArrayList<E> implements ListPP<E> {
+
+    public static final long serialVersionUID = -1L;
+
+    public ArrayListPP() {
+        super();
+    }
+    public ArrayListPP(int initialCapacity) {
+        super(initialCapacity);
+    }
+    public ArrayListPP(Collection<? extends E> collection) {
+        super(collection);
+    }
+
+
+    /**
+     * Find the maximum element in the whole <tt>ArrayList</tt>.
+     * based on Comparable.compareTo()
+     * 
+     * @return the maximum element overall
+     */
+    @Override
+    public E max() {
+        // choose the element only if it's greater than old one
+        return compareAll(1);
+    }
+
+    /**
+     * Find the minimum element in the whole <tt>ArrayList</tt>
+     * based on Comparable.compareTo()
+     * 
+     * @return the minimum element overall
+     */
+    @Override
+    public E min() {
+        // choose the element only if it's smaller than old one
+        return compareAll(-1);
+    }
+
+    private E compareAll(int condition) {
+        // varible size is private, so the 
+        // only way to do it is elementData.length
+        E result = this.get(0);
+        for(int i = 0; i < this.size(); i++) {
+            if(this.get(i) == null) continue;
+            // 
+            if(this.get(i).compareTo(result) == condition)
+                result = this.get(i);
+        }
+        return result;
+    }
+
+
+    @Override
+    public void sort() {
+        //TODO quicksort self
+        Collections.sort(this);
+    }
+
+    @Override
+    public void reverse() {
+        //TODO reserse the list
+        Collections.reverse(this);
+    }
+
+}
+
+
+
+
+
+interface ListPP<E> extends List<E> {
+
+    void sort();
+    void reverse();
+
+    E max();
+    E min();
+
+}
+
+class MethodNotSupportedException extends RuntimeException {
+
+    public static final long serialVersionUID = -1L;
+
+    public MethodNotSupportedException() {
+        super();
+    }
+    public MethodNotSupportedException(String reason) {
+        super(reason);
+    }
+
+}
+
+
+
+class Point extends DummyBase implements IWithCoord, Comparable<Point> {
+
+    public Point(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+
+
+    @Override
+    public String getFormattedOutput() {
+        return "(" + this.x + ", " + this.y + ")";
+    }
+
+    @Override
+    public int compareTo(Point p) {
+        // if @return is negitive or 0, sort don't do anything
+        // if @return is positive, sort swaps the values
+        if(this.x != p.getX()) {
+            return this.x - p.getX();
+        }
+        return this.y - p.getY();
+    }
+
+}
+
+class Time extends DummyBase implements IWithTime, Comparable<Time> {
+
+    public Time(int h, int m, int s) {
+        this.hours = h;
+        this.minutes = m;
+        this.seconds = s;
+    }
+
+
+
+    @Override
+    public String getFormattedOutput() {
+        return this.hours + " " + this.minutes + " " + this.seconds;
+    } 
+
+
+    @Override
+    public int compareTo(Time t) {
+        // if @return is negitive or 0, sort don't do anything
+        // if @return is positive, sort swaps the values
+        if(this.hours != t.getHours()) {
+            return this.hours - t.getHours();
+        }
+        if(this.minutes != t.getMinutes()) {
+            return this.minutes - t.getMinutes();
+        }
+        return this.seconds - t.getSeconds();
+    }
+
+}
+
+abstract class DummyBase implements IStringSerializable, IWithCoord, IWithTime, IConsoleOutput {
+
+    protected int x;
+    protected int y;
+
+    protected int hours;
+    protected int minutes;
+    protected int seconds;
+    protected int time6d;
+
+    protected static List<DummyBase> instances = new ArrayList<DummyBase>();
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
+
+    @Override
+    public int getX() { return this.x; }
+    @Override
+    public int getY() { return this.y; }
+
+
+    @Override
+    public int getHours() { return this.hours; }
+    @Override
+    public int getMinutes() { return this.minutes; }
+    @Override
+    public int getSeconds() { return this.seconds; }
+
+
+    @Override
+    public int get6dTime() {
+        return TimeUtils.get6dTime(this.hours, this.minutes, this.seconds);
+    }
+
+    @Override
+    public String formatTime(String separator) {
+        return TimeUtils.formatTime(this.hours, this.minutes, this.seconds, separator);
+    }
+
+
+    @Override
+    public Object[] getData() {
+        return new Object[]{};
+    }
+
+    @Override
+    public Object getFormattedData() {
+        return new Object();
+    }
+
+    @Override
+    public String getFormattedOutput() {
+        return "";
+    }
+
+    @Override 
+    public void printData() {
+        System.out.println(this.getFormattedOutput());
+    }
+
+
+
+
+
+    public static void putInstance(DummyBase instance) {
+        instances.add(instance);
+    }
+    public static void printAllData() {
+        for(int i = 0; i < instances.size(); i++) {
+            System.out.println(instances.get(i));
+        }
+    }
+
+}
+
+
+interface IConsoleOutput {
+
+    Object[] getData();
+    Object getFormattedData();
+
+    String getFormattedOutput();
+    void printData();
+
+}
+
+interface IIntConsumer {
+
+    void run(int in);
+
+}
+
+interface IStringSerializable {
+
+    String toString();
+
+}
+
+interface IWithCoord {
+
+    int getX();
+    int getY();
+
+}
+
+interface IWithTime {
+
+    int getHours();
+    int getMinutes();
+    int getSeconds();
+
+    int get6dTime();
+    String formatTime(String separator);
+
+}
+
+
+////////////////////////////////////////////////////////////////
+//============================================================//
+////////////////////////////////////////////////////////////////
+
+class ConsoleLogger extends Logger{
+
+    private static final int BUILDER_CAPACITY = 8;
+
+    private String name;
+    private String threadName;
+
+    private int builderCapacity;
+
+    public ConsoleLogger(String name) {
+        this(name, "main");
+    }
+    public ConsoleLogger(String name, String threadName) {
+        this.name = name;
+        this.threadName = threadName;
+    }
+    
+
+
+    @Override
+    public void debug(String t) {
+        this.log(t, "DEBUG");
+    }
+    @Override
+    public void info(String t) {
+        this.log(t, "INFO");
+    }
+    @Override
+    public void warn(String t) {
+        this.log(t, "WARN");
+    }
+    @Override
+    public void error(String t) {
+        this.log(t, "ERROR");
+    }
+    @Override
+    public void error(Throwable e) {
+        this.log("An exception was thrown by " + this.name + ": ", "ERROR");
+        e.printStackTrace();
+    }
+
+
+
+    private void log(String t, String prefix) {
+        StringBuilder out = new StringBuilder(BUILDER_CAPACITY);
+
+        out.append("[");
+        out.append(this.threadName);
+        out.append("/");
+        out.append(prefix);
+        out.append("] [");
+        out.append(this.name);
+        out.append("] ");
+        out.append(t);
+
+        System.out.println(out.toString());
+    }
+
+}
+
+class FakeLogger extends Logger{
+
+    public FakeLogger() {
+    }
+
+    @Override
+    public void debug(String t) {
+    }
+    @Override
+    public void info(String t) {
+    }
+    @Override
+    public void warn(String t) {
+    }
+    @Override
+    public void error(String t) {
+    }
+    @Override
+    public void error(Throwable e) {
+    }
+
+}
+
+abstract class Logger {
+
+    public void debug(String t) {
+    }
+    public void info(String t) {
+    }
+    public void warn(String t) {
+    }
+    public void fatal(String t) {
+    }
+    public void error(String t) {
+    }
+    public void error(Throwable e) {
+    }
+
+}
