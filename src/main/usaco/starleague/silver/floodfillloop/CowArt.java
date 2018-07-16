@@ -13,6 +13,8 @@ public class CowArt {
     private static char[][] paint;
     private static int paintLength;
 
+    // (int) 'R' 'G' 'B' < 91
+    // (int) 'x' 'y' 'z' > 96
     public static void main(String[] args) {
         Utils.resetLogger("CowArt", "floodfillloop", true);
         Scanner consoleIn = new Scanner(System.in);
@@ -22,77 +24,100 @@ public class CowArt {
         //[[0, 0, 0],
         // [0, 0, 0],
         // [0, 0, 0]]
-        paint = new char[mapY][mapX];e
+        paint = new char[paintLength][paintLength];
 
         Utils.getLogger().info("paintLength: " + paintLength);
 
-        for(int i = 0; i < amountFlooded; i++) {
+        for(int i = 0; i < paintLength; i++) {
             paint[i] = consoleIn.next().toCharArray();
         }
-        Utils.getLogger().info("paint: " + printArray(map));
+        Utils.getLogger().info("paint: " + printArray(paint));
 
-        int humanRegions = 0;
-        for(int i = 0; i < mapX; i++) {
-            for(int j = 0; j < mapY; j++) {
-                if(map[j][i] != 'x') {
-                    int size = floodfillWs(i, j, String.valueOf(pondId).charAt(0));
-                    humanRegions++;
-                }
+        int humanRegions = count(false);
+
+        // reset 'r' to 'R', 'g' to 'G', 'b' to 'B'
+        for(int i = 0; i < paintLength; i++) {
+            for(int j = 0; j < paintLength; j++) {
+                paint[j][i] = paint[j][i] == 'r' ? 'R' : paint[j][i] == 'g' ? 'G' : paint[j][i] == 'b' ? 'B' : '0';
             }
         }
-        
-        Utils.getLogger().info("marked map: " + printArray(map));
-        Utils.println(answer);
+        Utils.getLogger().info("reset paint: " + printArray(paint));
+
+        int cowRegions = count(true);
+
+        Utils.getLogger().info("marked paint: " + printArray(paint));
+        Utils.println(humanRegions + " " + cowRegions);
 
         consoleIn.close();
     }
 
-    private static int floodfillWs(int x, int y, char pondId) {
-        map[y][x] = pondId;
+    private static int count(boolean mode) {
+        int regions = 0;
+        for(int i = 0; i < paintLength; i++) {
+            for(int j = 0; j < paintLength; j++) {
+                //Utils.getLogger().debug("at x: " + i + " y: " + j + " current: " + paint[j][i]);
+
+                // paint[j][i] is a capital letter
+                if((int) paint[j][i] < 91) {
+                    floodfillWs(i, j, paint[j][i] == 'R' ? 'r' : paint[j][i] == 'G' ? 'g' : paint[j][i] == 'B' ? 'b' : '0', mode);
+                    regions++;
+                }
+            }
+        }
+
+        return regions;
+    }
+
+    private static void floodfillWs(int x, int y, char replaceWith, boolean mode) {
+        paint[y][x] = replaceWith;
 
         boolean doesMarked;
-        int pondSize = 1;
         do {
             doesMarked = false;
 
-            for(int i = 0; i < mapX; i++) {
-                for(int j = 0; j < mapY; j++) {
-                    Utils.getLogger().debug("at x: " + i + " y: " + j + " current: " + map[j][i]);
+            for(int i = 0; i < paintLength; i++) {
+                for(int j = 0; j < paintLength; j++) {
+                    // paint[j][i] is a capital letter
+                    if((int) paint[j][i] < 91 && hasSameNeghibor(i, j, replaceWith, mode)) {
+                        Utils.getLogger().info("at x: " + i + " y: " + j + " current: " + paint[j][i] + "   and set to: " + replaceWith);
 
-                    if(map[j][i] == 'W' && hasSymNeghibor(i, j, pondId)) {
-                        map[j][i] = pondId;
-                        pondSize++;
+                        paint[j][i] = replaceWith;
                         doesMarked = true;
                     }
                 }
             }
 
         } while(doesMarked);
-
-        Utils.getLogger().debug("current pond size: " + pondSize);
-        return pondSize;
     }
 
-    private static boolean hasSymNeghibor(int x, int y, int symbol, boolean mode) {
-        int[] dx = new int[]{-1, 0, 1, 0};
-        int[] dy = new int[]{0, -1, 0, 1};
+    private static boolean hasSameNeghibor(int x, int y, char sameAs, boolean isCow) {
+        final int[] DX = new int[]{-1, 0, 1, 0};
+        final int[] DY = new int[]{0, -1, 0, 1};
 
-        for(int i = 0; i < dx.length; i++) {
-            if(x + dx[i] < 0 || x + dx[i] >= mapX ||
-               y + dy[i] < 0 || y + dy[i] >= mapY) {
+        for(int i = 0; i < DX.length; i++) {
+            if(x + DX[i] < 0 || x + DX[i] >= paintLength ||
+               y + DY[i] < 0 || y + DY[i] >= paintLength) {
                    continue;
             }
 
-            if(mode &&) {
-                
-            } else if(map[y + dy[i]][x + dx[i]] == symbol) {
-                Utils.getLogger().debug("detected neghibor: " + (x + dx[i]) + ", " + (y + dy[i]));
+            if(isCow) {
+                if((sameAs == 'r' || sameAs == 'g') && (paint[y + DY[i]][x + DX[i]] == 'r' || paint[y + DY[i]][x + DX[i]] == 'g')) {
+                    Utils.getLogger().debug("detected neghibor: " + (x + DX[i]) + ", " + (y + DY[i]) + "   ");
+                    return true;
+                } else if(paint[y + DY[i]][x + DX[i]] == sameAs) {
+                    Utils.getLogger().debug("detected neghibor: " + (x + DX[i]) + ", " + (y + DY[i]) + "   ");
+                    return true;
+                }
+            } else if(paint[y + DY[i]][x + DX[i]] == sameAs) {
+                Utils.getLogger().debug("detected neghibor: " + (x + DX[i]) + ", " + (y + DY[i]) + "   ");
                 return true;
             }
         }
 
         return false;
     }
+
+
 
     private static String printArray(char[][] a) {
         StringBuilder output = new StringBuilder(a.length);
