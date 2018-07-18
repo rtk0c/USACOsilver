@@ -9,7 +9,7 @@ import java.util.Scanner;
  * @author reobj_
  *
  */
-public GoingToTheMovies {
+public class GoingToTheMovies {
 
 	public static void main(String[] args) {
 		Scanner consoleIn = new Scanner(System.in);
