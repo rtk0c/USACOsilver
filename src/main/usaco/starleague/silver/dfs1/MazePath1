@@ -1,0 +1,56 @@
+import java.util.Scanner;
+
+/**
+ * All index start from 0, ... - 1 when getting input
+ * use crates
+ * 
+ * 
+ * @author reobj_
+ *
+ */
+public class MazePath1 {
+
+	public static void main(String[] args) {
+		Scanner consoleIn = new Scanner(System.in);
+		
+		mapLength = consoleIn.nextInt();
+		map = new boolean[mapLength][mapLength];
+		for(int i = 0; i < mapLength; i++) {     // Iterate x
+			for(int j = 0; j < mapLength; j++) { // Iterate y
+				map[j][i] = consoleIn.nextInt() == 0 ? true : false;
+			}
+		}
+		
+		pathFind();
+		System.out.println(result);
+		
+		consoleIn.close();
+	}
+	
+	
+	private static int result;
+	private static int mapLength;
+	/** true = Land, false = water */
+	private static boolean[][] map;
+	
+	private static void pathFind() {
+		pathFind(0, 0);
+	}
+	private static void pathFind(int x, int y) {
+		// Bound reserve
+		if(x+1 == mapLength && y+1 == mapLength) {
+			result++;
+			return;
+		}
+		
+		if(!map[y][x]) {
+			return;
+		} // map[y][x] is water
+		
+		if(x+1 < mapLength) pathFind(x + 1, y); // Go right
+		if(y+1 < mapLength) pathFind(x, y + 1); // Go down
+	}
+	
+	
+}
+
