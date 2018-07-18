@@ -9,7 +9,7 @@ import java.util.Scanner;
  * @author reobj_
  *
  */
-public class MooCast {
+public class Main {
 
 	public static void main(String[] args) {
 		Scanner consoleIn = new Scanner(System.in);
@@ -23,21 +23,21 @@ public class MooCast {
 			cows[i].id = i;
 		}
 		
-		Arrays.sort(cows);
+		//Arrays.sort(cows);
+		
+		for(int i = 0; i < amountCows; i++) {
+			cows[i].markAllReachable(cows);
+		}
 		
 		int solution = 0;
-		result = 0;
 		for(int i = 0; i < amountCows; i++) {
-			distSearch(i);
-			solution = Math.max(solution, result);
-			result = 0;
+			solution = Math.max(solution, distSearch(i));
 		}
 		System.out.println(solution);
 		
 		consoleIn.close();
 	}
 
-	private static int result;
 	private static int amountCows;
 	private static BoardcasterCow[] cows;
 	
@@ -46,21 +46,23 @@ public class MooCast {
 	 * All the distance right here are a^2 + b^2, so no sqrt()
 	 * for both saving time and decimal (float) problems
 	 */
-	private static void distSearch(int d) {
+	private static int distSearch(int d) {
 		/*if(cows[d].isReached) {
 			return;
 		}*/
 		
 		cows[d].isReached = true;
-		result++;
+		int result = 1;
 		
 		// Mark all cows in range
-		for(int i = 0; i < amountCows; i++) {
+		for(int i = 0; i < cows[d].cowsReachable.length; i++) {
 			// Except the next possible is already marked
-			if(cows[d].isInRange(cows[i]) && !cows[i].isReached) {
-				distSearch(i);
+			if(!cows[ cows[d].cowsReachable[i] ].isReached) {
+				result += distSearch(cows[d].cowsReachable[i]);
 			}
 		}
+		
+		return result;
 	}
 	 
 	private static int square(int n) {
@@ -77,6 +79,7 @@ class BoardcasterCow implements Comparable<BoardcasterCow> {
 	int y;
 	/** Square of actual distance */
 	int transmitionRadius;
+	int[] cowsReachable;
 	boolean isReached;
 	
 	public BoardcasterCow(int x, int y, int transmitRadius) {
@@ -86,12 +89,30 @@ class BoardcasterCow implements Comparable<BoardcasterCow> {
 	}
 	
 	
-	public boolean isInRange(BoardcasterCow p) {
+	void markAllReachable(BoardcasterCow[] cows) {
+		if(this.cowsReachable != null)
+			return;
+		
+		this.cowsReachable = new int[cows.length];
+		int nextInsertion = 0;
+		for(int i = 0; i < cows.length; i++) {
+			if(this.isInRange(cows[i])) {
+				this.cowsReachable[ nextInsertion ] = i;
+				nextInsertion++;
+			}
+		}
+		this.cowsReachable = Arrays.copyOfRange(this.cowsReachable, 0, nextInsertion);
+	}
+	
+	boolean isInRange(BoardcasterCow p) {
+		if(this.id == p.id) return false;
+		
 		return this.dist(p) <= this.transmitionRadius;
 	}
-	public int dist(BoardcasterCow p) {
+	int dist(BoardcasterCow p) {
 		return square(Math.abs(this.x - p.x)) + square(Math.abs(this.y - p.y));
 	}
+	
 	
 	private static int square(int x) {
 		return x * x;
