@@ -32,6 +32,9 @@ public class Main {
 		int solution = 0;
 		for(int i = 0; i < amountCows; i++) {
 			solution = Math.max(solution, distSearch(i));
+			for(int j = 0; j < amountCows; j++) {
+				cows[j].isReached = false;
+			}
 		}
 		System.out.println(solution);
 		
@@ -52,7 +55,7 @@ public class Main {
 		}*/
 		
 		cows[d].isReached = true;
-		int result = 1;
+		int result = 1; // Itself
 		
 		// Mark all cows in range
 		for(int i = 0; i < cows[d].cowsReachable.length; i++) {
@@ -90,26 +93,34 @@ class BoardcasterCow implements Comparable<BoardcasterCow> {
 	
 	
 	void markAllReachable(BoardcasterCow[] cows) {
+		// You should only called this method once
 		if(this.cowsReachable != null)
 			return;
 		
+		// Standard array inserting method
 		this.cowsReachable = new int[cows.length];
 		int nextInsertion = 0;
+		
 		for(int i = 0; i < cows.length; i++) {
+			// If the cow is in the accessible range of (this)
 			if(this.isInRange(cows[i])) {
+				// Stores the <b>index</b> of accessible cow
 				this.cowsReachable[ nextInsertion ] = i;
 				nextInsertion++;
 			}
 		}
+		// Clear all the non-used element on the end of array
 		this.cowsReachable = Arrays.copyOfRange(this.cowsReachable, 0, nextInsertion);
 	}
 	
 	boolean isInRange(BoardcasterCow p) {
+		// Doesn't include itself
+		// <i>Idiot Input Protection</i>
 		if(this.id == p.id) return false;
 		
-		return this.dist(p) <= this.transmitionRadius;
+		return this.distFrom(p) <= this.transmitionRadius;
 	}
-	int dist(BoardcasterCow p) {
+	int distFrom(BoardcasterCow p) {
 		return square(Math.abs(this.x - p.x)) + square(Math.abs(this.y - p.y));
 	}
 	
